@@ -7,11 +7,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* Additional styles for file name display */
+        .file-name {
+            font-weight: bold;
+            color: #555;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .file-name.highlight {
+            color: #4CAF50; /* Green for highlighting */
+            transform: scale(1.05); /* Slightly enlarge on file selection */
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Seismic Prediction Tool</h1>
-        <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
+        <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
             <div class="form-group">
                 <label for="file"><i class="fas fa-file-upload"></i> Upload .mseed File:</label>
                 <label class="custom-file-upload" for="file">
@@ -36,6 +48,7 @@
             <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> Submit</button>
         </form>
 
+        <!-- Result Section -->
         {% if predicted_time %}
             <div class="result">
                 <h2>Predicted Time: <span class="highlight">{{ predicted_time }} seconds</span></h2>
@@ -56,8 +69,33 @@
 
     <script>
         function updateFileName(input) {
-            const fileName = input.files.length > 0 ? input.files[0].name : "No file chosen";
-            document.getElementById('file-name').textContent = fileName;
+            const fileNameDisplay = document.getElementById('file-name');
+            if (input.files.length > 0) {
+                const fileName = input.files[0].name;
+                fileNameDisplay.textContent = fileName;
+                fileNameDisplay.classList.add('highlight'); // Add highlight class
+            } else {
+                fileNameDisplay.textContent = "No file chosen";
+                fileNameDisplay.classList.remove('highlight'); // Remove highlight class
+            }
+        }
+
+        function validateForm() {
+            const fileInput = document.getElementById('file');
+            const allowedExtensions = /(.mseed)$/i;
+
+            if (fileInput.files.length === 0) {
+                alert("Please choose a .mseed file to upload.");
+                return false; // Prevent form submission
+            }
+
+            if (!allowedExtensions.exec(fileInput.value)) {
+                alert("Invalid file type. Please upload a .mseed file.");
+                fileInput.value = ''; // Clear the input
+                return false; // Prevent form submission
+            }
+
+            return true; // Allow form submission
         }
     </script>
 </body>
