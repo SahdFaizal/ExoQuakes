@@ -146,3 +146,9 @@ input[type="file"] {
 .message p {
     margin: 0;
 }
+
+.error-message {
+    color: #d9534f; /* Red for error messages */
+    margin-top: 10px;
+    display: none; /* Hidden by default */
+}
