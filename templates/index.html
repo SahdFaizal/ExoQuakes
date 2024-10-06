@@ -6,31 +6,18 @@
     <title>Seismic Prediction</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <style>
-        /* Additional styles for file name display */
-        .file-name {
-            font-weight: bold;
-            color: #555;
-            transition: color 0.3s ease, transform 0.3s ease;
-        }
-        .file-name.highlight {
-            color: #4CAF50; /* Green for highlighting */
-            transform: scale(1.05); /* Slightly enlarge on file selection */
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/style.css"> <!-- Link to external CSS -->
 </head>
 <body>
     <div class="container">
         <h1>Seismic Prediction Tool</h1>
-        <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+        <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="file"><i class="fas fa-file-upload"></i> Upload .mseed File:</label>
-                <label class="custom-file-upload" for="file">
-                    Choose File
-                </label>
+                <label class="custom-file-upload" for="file">Choose File</label>
                 <input type="file" id="file" name="file" accept=".mseed" required onchange="updateFileName(this)">
                 <div class="file-name" id="file-name">No file chosen</div>
+                <div class="error-message" id="file-error"></div>
             </div>
 
             <div class="form-group">
@@ -43,6 +30,7 @@
                         <input type="radio" name="model" value="mars"> Mars
                     </label>
                 </div>
+                <div class="error-message" id="model-error"></div>
             </div>
 
             <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> Submit</button>
@@ -70,39 +58,49 @@
     <script>
         function updateFileName(input) {
             const fileNameDisplay = document.getElementById('file-name');
+            const fileError = document.getElementById('file-error');
             if (input.files.length > 0) {
                 const fileName = input.files[0].name;
                 fileNameDisplay.textContent = fileName;
                 fileNameDisplay.classList.add('highlight'); // Add highlight class
+                fileError.textContent = ""; // Clear any previous error messages
+                fileError.style.display = "none"; // Hide the error message
             } else {
                 fileNameDisplay.textContent = "No file chosen";
                 fileNameDisplay.classList.remove('highlight'); // Remove highlight class
             }
         }
 
-        function validateForm() {
+        document.getElementById('uploadForm').onsubmit = function(event) {
             const fileInput = document.getElementById('file');
             const modelSelected = document.querySelector('input[name="model"]:checked');
+            const fileError = document.getElementById('file-error');
+            const modelError = document.getElementById('model-error');
             const allowedExtensions = /(.mseed)$/i;
 
-            if (fileInput.files.length === 0) {
-                alert("Please choose a .mseed file to upload.");
-                return false; // Prevent form submission
-            }
+            let isValid = true;
+            fileError.textContent = ""; // Clear previous error message
+            modelError.textContent = ""; // Clear previous error message
 
-            if (!allowedExtensions.exec(fileInput.value)) {
-                alert("Invalid file type. Please upload a .mseed file.");
+            if (fileInput.files.length === 0) {
+                fileError.textContent = "Please choose a .mseed file to upload.";
+                fileError.style.display = "block"; // Show error message
+                isValid = false; // Set validity to false
+            } else if (!allowedExtensions.exec(fileInput.value)) {
+                fileError.textContent = "Invalid file type. Please upload a .mseed file.";
+                fileError.style.display = "block"; // Show error message
                 fileInput.value = ''; // Clear the input
-                return false; // Prevent form submission
+                isValid = false; // Set validity to false
             }
 
             if (!modelSelected) {
-                alert("Please select a model before submitting.");
-                return false; // Prevent form submission
+                modelError.textContent = "Please select a model before submitting.";
+                modelError.style.display = "block"; // Show error message
+                isValid = false; // Set validity to false
             }
 
-            return true; // Allow form submission
-        }
+            return isValid; // Allow or prevent form submission
+        };
     </script>
 </body>
 </html>
