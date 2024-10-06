@@ -82,6 +82,7 @@
 
         function validateForm() {
             const fileInput = document.getElementById('file');
+            const modelSelected = document.querySelector('input[name="model"]:checked');
             const allowedExtensions = /(.mseed)$/i;
 
             if (fileInput.files.length === 0) {
@@ -92,6 +93,11 @@
             if (!allowedExtensions.exec(fileInput.value)) {
                 alert("Invalid file type. Please upload a .mseed file.");
                 fileInput.value = ''; // Clear the input
+                return false; // Prevent form submission
+            }
+
+            if (!modelSelected) {
+                alert("Please select a model before submitting.");
                 return false; // Prevent form submission
             }
 
